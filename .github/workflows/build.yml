@@ -8,15 +8,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
       - name: Build
         run: |
           chmod +x gradlew
-          ./gradlew build --no-daemon --stacktrace
+          set -o pipefail
+          ./gradlew build --no-daemon 2>&1 | tee build.log
+      - name: Report build errors
+        if: failure()
+        run: |
+          # Put the important lines into one annotation so they're readable from the API and the run page.
+          msg=$(grep -nE "error:|What went wrong|Could not|> |e: |Exception|FAILED|symbol:|location:" build.log | head -n 120)
+          [ -z "$msg" ] && msg=$(tail -n 80 build.log)
+          msg="${msg//'%'/'%25'}"; msg="${msg//$'\n'/'%0A'}"; msg="${msg//$'\r'/'%0D'}"
+          echo "::error title=Build errors::$msg"
       - uses: actions/upload-artifact@v4
         with:
           name: claude-companion-jar
