@@ -39,6 +39,7 @@ public class ClaudeCompanionClient implements ClientModInitializer {
 				Hud.chat("§6[Claude Companion]§r Add your Claude API key to config/claudecompanion.json (\"apiKey\"), then run /claude reload.");
 			}
 			if (Config.get().voiceEnabled) VoiceInput.start();
+			if (SelfTest.enabled()) SelfTest.startOnce();
 		});
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {

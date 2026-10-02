@@ -262,6 +262,7 @@ public final class ClaudeAgent {
 	private static void say(String raw) {
 		String text = Speech.clean(raw);
 		if (text.isEmpty()) return;
+		ClaudeCompanion.LOG.info("[Claude says] {}", text);
 		broadcast(Text.literal("§d<Claude>§r " + text));
 		Speech.speak(text);
 	}
