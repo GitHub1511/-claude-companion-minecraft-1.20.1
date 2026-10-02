@@ -85,6 +85,15 @@ def serve(args):
     import numpy as np
     import soundfile as sf
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    # Point espeak-ng (used for pronunciation) at the data bundled with espeakng-loader. Without this some setups
+    # fall back to a path baked in at build time and fail with "Error processing file .../phontab".
+    try:
+        import espeakng_loader
+        os.environ["ESPEAK_DATA_PATH"] = espeakng_loader.get_data_path()
+        os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = espeakng_loader.get_library_path()
+    except Exception as e:
+        print("espeak setup warning: %s" % e, flush=True)
     from kokoro_onnx import Kokoro
 
     model = download(args.model, args.dir)
