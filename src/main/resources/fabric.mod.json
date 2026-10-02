@@ -1,0 +1,20 @@
+{
+	"schemaVersion": 1,
+	"id": "claudecompanion",
+	"version": "${version}",
+	"name": "Claude Companion",
+	"description": "Claude as an in-world companion you can talk to out loud. Walks, builds with any block, sees what you see, runs commands. Powered by the Claude API.",
+	"authors": ["Shiv"],
+	"license": "MIT",
+	"environment": "client",
+	"entrypoints": {
+		"main": ["com.claudecompanion.ClaudeCompanion"],
+		"client": ["com.claudecompanion.client.ClaudeCompanionClient"]
+	},
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}
