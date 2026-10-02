@@ -4,6 +4,9 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,6 +29,21 @@ jobs:
           [ -z "$msg" ] && msg=$(tail -n 80 build.log)
           msg="${msg//'%'/'%25'}"; msg="${msg//$'\n'/'%0A'}"; msg="${msg//$'\r'/'%0D'}"
           echo "::error title=Build errors::$msg"
+      - name: Inspect jar
+        run: |
+          JAR=$(ls build/libs/claude-companion-*.jar | grep -v sources | head -1)
+          msg=$(unzip -l "$JAR" | grep -E "fabric.mod.json|META-INF/jars/|claudecompanion/|com/claudecompanion/[A-Za-z]+\.class|textures|lang" | awk '{print $1, $4}')
+          msg="${msg//$'\n'/'%0A'}"
+          echo "::notice title=Jar contents::$JAR%0A$msg"
+      - name: Publish release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          JAR=$(ls build/libs/claude-companion-*.jar | grep -v sources | head -1)
+          gh release delete latest --yes --cleanup-tag 2>/dev/null || true
+          gh release create latest "$JAR" --title "Claude Companion (latest build)" \
+            --notes "Drop the jar into .minecraft/mods with Fabric API for 1.20.1. Built from ${GITHUB_SHA::7}."
       - uses: actions/upload-artifact@v4
         with:
           name: claude-companion-jar
