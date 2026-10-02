@@ -166,7 +166,11 @@ def main():
         annotate("error", f"[{args.label}] CRASH REPORT", Path(crashes[-1]).read_text(errors="replace")[:20000])
     selftest = [l for l in text.splitlines() if "[SELFTEST]" in l or "[Claude says]" in l or "[Claude voice" in l]
     if selftest:
-        annotate("notice", f"[{args.label}] self-test", "\n".join(l.split("]: ", 1)[-1] for l in selftest))
+        annotate("notice", f"[{args.label}] self-test", "\n".join(l.split("]: ", 1)[-1][:160] for l in selftest))
+    for name in ("kokoro", "csm"):
+        sl = work / "config" / "claudecompanion" / name / "server.log"
+        if sl.exists():
+            annotate("notice", f"[{args.label}] {name} server.log", sl.read_text(errors="replace")[-6000:])
     done = [l for l in selftest if "DONE passed=" in l]
     if not done or "failed=0" not in done[-1]:
         ok = False
